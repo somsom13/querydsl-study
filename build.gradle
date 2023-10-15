@@ -1,66 +1,70 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.1.4'
-	id 'io.spring.dependency-management' version '1.1.3'
+    id 'java'
+    id 'org.springframework.boot' version '3.1.4'
+    id 'io.spring.dependency-management' version '1.1.3'
 
-	// querydsl
-	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+    // querydsl용 플러그인 추가
+//	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'study'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+    sourceCompatibility = '17'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
-
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	// Spring Boot 3 이하에서 querydsl 설정 추가
-	implementation 'com.querydsl:querydsl-jpa'
+    // Spring Boot 3 이하에서 querydsl 라이브러리 추가
+//	implementation 'com.querydsl:querydsl-jpa'
 
-	// spring boot 3 이상에서 querydsl 설정 추가
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
-	// 끝에 jakarta가 붙지 않으면 javax에서 패키지를 찾아 Q클래스를 컴파일 하는 과정을 제대로 수행하지 못한다.
-	// jakarta 패키지를 사용하게 되면서 해당 패키지에 맞는 annotation processor를 추가 -> gradle이 수행하던 querydsl 태스크를 대체한다. (compileQuerydsl 작업)
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    // spring boot 3 이상에서 querydsl 설정 추가
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor(
+            "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta",
+            // 끝에 jakarta가 붙지 않으면 javax에서 패키지를 찾아 Q클래스를 컴파일 하는 과정을 제대로 수행하지 못한다.
+            "jakarta.annotation:jakarta.annotation-api",
+            //
+            "jakarta.persistence:jakarta.persistence-api"
+            //
+    )
 }
+
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
+def generated = 'src/main/generated'
 
-querydsl {
-	jpa = true
-	querydslSourcesDir = querydslDir
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
+
+// java source set 에 querydsl QClass 위치 추가
 sourceSets {
-	main.java.srcDir querydslDir
+    main.java.srcDirs += [ generated ]
 }
-configurations {
-	querydsl.extendsFrom compileClasspath
+
+// gradle clean 시에 QClass 디렉토리 삭제
+clean {
+    delete file(generated)
 }
-compileQuerydsl {
-	options.annotationProcessorPath = configurations.querydsl
-}
-//querydsl 추가 끝
