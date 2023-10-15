@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,26 +12,28 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderMenu {
+public class NewMenu { // 가게가 메뉴를 가져야 함
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @Getter(AccessLevel.NONE)
-    private Order order;
-
-    @ManyToOne
-    @Getter(AccessLevel.NONE)
-    private Menu menu;
+    @Column
+    private String name;
 
     @Column
-    private int quantity;
+    private long price;
 
-    public OrderMenu(final Order order, final Menu menu) {
-        this.order = order;
-        this.menu = menu;
-        this.quantity = 0;
+    @Column
+    private long likeCount;
+
+    public NewMenu(final String name, final long price) {
+        this.name = name;
+        this.price = price;
+        this.likeCount = 0;
+    }
+
+    public void updateLikeCount() {
+        this.likeCount++;
     }
 }

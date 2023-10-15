@@ -1,11 +1,12 @@
 package study.querydsl.domain;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,26 +14,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderMenu {
+public class Store {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @Getter(AccessLevel.NONE)
-    private Order order;
+    @OneToMany(mappedBy = "store")
+    private List<NewOrder> orders = new ArrayList<>();
 
-    @ManyToOne
-    @Getter(AccessLevel.NONE)
-    private Menu menu;
+    @OneToMany(mappedBy = "menu")
+    private List<NewMenu> menus = new ArrayList<>();
 
-    @Column
-    private int quantity;
-
-    public OrderMenu(final Order order, final Menu menu) {
-        this.order = order;
-        this.menu = menu;
-        this.quantity = 0;
-    }
 }

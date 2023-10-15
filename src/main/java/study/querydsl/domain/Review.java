@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,9 +30,13 @@ public class Review {
     @Getter(AccessLevel.NONE)
     private Order order;
 
+    @Column
+    private LocalDateTime createdAt;
+
     public Review(final String content, final int rate, final Order order) {
         this.content = content;
         this.order = order;
         this.rate = rate;
+        this.createdAt = LocalDateTime.now();
     }
 }
